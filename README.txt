@@ -19,7 +19,7 @@ list4@example.com
 
 And then you run:
 
-./procmailgen.py mailinglist-folders my@email.com
+./procmailgen.py example-mailinglist-folders my@email.com
 
 And the program will generate a .procmailrc from the templates that
 are defined within it and output the .procmailrc file to stdout.

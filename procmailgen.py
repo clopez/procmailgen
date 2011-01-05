@@ -56,7 +56,8 @@ DEFAULT=${MAILDIR}
 
 
 ########################################################################
-# templatelist is for each list and folder. It supports the following:
+# templatemailinglist is for each mailing list and folder.
+# It supports the following:
 ########################################################################
 # %(usermail)s -> is your email address
 # %(usermaildotescaped)s -> is %(usermail)s but replacing '.' with '\.'
@@ -66,7 +67,7 @@ DEFAULT=${MAILDIR}
 # %(listmail)s -> is the email of the list listname@example.com in folder
 # %(listmaildotescaped)s -> is %(listmail)s but replacing '.' with '\.'
 ########################################################################
-templatelist = """\
+templatemailinglist = """\
 
 # Deliver list %(listmail)s to folder %(folder)s
 :0w
@@ -76,6 +77,31 @@ templatelist = """\
 """
 ########################################################################
 
+########################################################################
+# templatefeedurl is for each rss url and folder.
+# It supports the following:
+########################################################################
+# %(usermail)s -> is your email address
+# %(usermaildotescaped)s -> is %(usermail)s but replacing '.' with '\.'
+# %(username)s -> is the part before the @ of your email address
+# %(userhost)s -> is the part after the @ of your email address
+# %(folder)s -> is the folder name of your inbox for saving your emails
+# %(feedurl)s -> is the RSS url in folder ex: http://blog.com/feed
+# %(feedurldotescaped)s -> is %(feedurl)s but replacing '.' with '\.'
+########################################################################
+#
+# IMPORTANT: This template is optimized for use with rss2email > 2.65
+# http://www.allthingsrss.com/rss2email/
+#
+templatefeedurl = """\
+
+# Deliver Feed %(feedurl)s to folder %(folder)s
+:0w
+* ^X-RSS-Feed:..*%(feedurldotescaped)s
+| $DELIVER -m %(folder)s
+
+"""
+########################################################################
 
 
 ########################################################################
@@ -178,10 +204,15 @@ def parse_config(filename):
                     data[folder] = []
                 # Clean it
                 line = line.strip()
-                # Check for valid email
-                if not verify_valid_email(line):
+                # Check for valid email or a possible URL :
+                #   Since we dont't want to restrict the possible URLs
+                #   protocols to http/https we only check for "://" in
+                #   the string. For example, it is possible to have
+                #   RSS feeds delivered via ftp://
+                if not verify_valid_email(line) and "://" not in line:
                     raise ValueError('You have specified an incorrect '
-                        'email address \'%s\' in file \'%s\' under folder \'%s\''
+                        'email address or Feed URL \'%s\' in file \'%s\' '
+                        'under folder \'%s\''
                          % (line, filename, folder) )
                 # Appends lists to folder
                 data[folder].append(line)
@@ -260,7 +291,7 @@ def main(argv=None):
            'usermail' : usermail,
            'usermaildotescaped' : usermail.replace('.','\.') ,
            'username' : username ,
-           'userhost' : userhost,
+           'userhost' : userhost
             } )
 
 
@@ -268,18 +299,30 @@ def main(argv=None):
     for folder in data.keys():
         # Loop over lists in the folder
         for listmail in data[folder]:
+            if verify_valid_email(listmail):
 
+                # Print the template for each folder and e-mail list
+                print ( templatemailinglist % {
+                'usermail' : usermail,
+                'usermaildotescaped' : usermail.replace('.','\.') ,
+                'username' : username ,
+                'userhost' : userhost,
+                'listmail' : listmail ,
+                'listmaildotescaped' : listmail.replace('.','\.'),
+                'folder' : folder
+                } )
 
-            # Print the template for each folder and list
-            print ( templatelist % {
-            'usermail' : usermail,
-            'usermaildotescaped' : usermail.replace('.','\.') ,
-            'username' : username ,
-            'userhost' : userhost,
-            'listmail' : listmail ,
-            'listmaildotescaped' : listmail.replace('.','\.'),
-            'folder' : folder
-            } )
+            elif "://" in listmail:
+                # Print the template for RSS feeds
+                print ( templatefeedurl % {
+                'usermail' : usermail,
+                'usermaildotescaped' : usermail.replace('.','\.') ,
+                'username' : username ,
+                'userhost' : userhost,
+                'feedurl' : listmail ,
+                'feedurldotescaped' : listmail.replace('.','\.'),
+                'folder' : folder
+                } )
 
 
     # Print the end of the file
@@ -287,7 +330,7 @@ def main(argv=None):
             'usermail' : usermail,
             'usermaildotescaped' : usermail.replace('.','\.') ,
             'username' : username ,
-            'userhost' : userhost,
+            'userhost' : userhost
             } )
 
     # Program finished correctly

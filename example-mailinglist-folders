@@ -19,3 +19,9 @@ linux-wireless@vger.kernel.org
 linux-btrfs@vger.kernel.org
 linux-raid@vger.kernel.org
 
+[security-news]
+full-disclosure@lists.grok.org.uk
+bugtraq@securityfocus.com
+http://www.exploit-db.com/rss.php
+http://www.securityfocus.com/rss/news.xml
+

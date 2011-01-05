@@ -1,0 +1,9 @@
+* The templates included by default for delivering RSS Feeds are optimized
+  for use with rss2email > 2.65
+  http://www.allthingsrss.com/rss2email/
+
+* You can find rss2email 2.70 packaged for Debian Lenny here:
+  http://apt.igalia.com/
+
+* With this setup you simply put the feed URL as it was a maling list on the
+  folders file: see the file example-mailing-lists
