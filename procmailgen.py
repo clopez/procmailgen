@@ -42,7 +42,7 @@ SHELL=/bin/bash
 LOGFILE=$HOME/.procmail.log
 
 USER=%(username)s
-DELIVER="/usr/lib/dovecot/deliver -s"
+DELIVER="/usr/lib/dovecot/deliver -n"
 MAILDIR=/var/spool/maildirs/${USER}/Maildir/
 DEFAULT=${MAILDIR}
 
